@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real Time Products</title>
+</head>
+<body>
+  <h1>Productos en tiempo real</h1>
+  
+  <!-- Formulario para la creación de productos -->
+  <form id="createProductForm">
+    <label for="title">Título:</label>
+    <input type="text" id="title" name="title"><br>
+    <label for="description">Descripción:</label>
+    <textarea id="description" name="description"></textarea><br>
+    <label for="code">Código:</label>
+    <input type="text" id="code" name="code"><br>
+    <label for="price">Precio:</label>
+    <input type="number" id="price" name="price"><br>
+    <label for="status">Estado:</label>
+    <input type="checkbox" id="status" name="status"><br>
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock"><br>
+    <label for="category">Categoría:</label>
+    <input type="text" id="category" name="category"><br>
+    <button type="submit">Crear Producto</button>
+  </form>
+  
+  <!-- Lista de productos -->
+  <ul id="productList"></ul>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  / Conectar al servidor de WebSockets
+    const socket = io();
+
+    // Manejar la recepción de la lista de productos actualizada
+    socket.on('productList', (products) => {
+      const productList = document.getElementById('productList');
+
+      // Limpiar la lista de productos
+      productList.innerHTML = '';
+
+      // Mostrar cada producto en la lista
+      products.forEach((product) => {
+        const li = document.createElement('li');
+        li.textContent = product.title;
+        productList.appendChild(li);
+      });
+    });
+
+    // Manejar el envío del formulario de creación de productos
+    const createProductForm = document.getElementById('createProductForm');
+    createProductForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      // Obtener los valores del formulario
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const code = document.getElementById('code').value;
+      const price = document.getElementById('price').value;
+      const status = document.getElementById('status').checked;
+      const stock = document.getElementById('stock').value;
+      const category = document.getElementById('category').value;
+
+      // Crear el objeto de producto
+      const product = {
+        title,
+        description,
+        code,
+        price,
+        status,
+        stock,
+        category,
+      };
+
+      // Enviar el evento de creación de producto al servidor
+      socket.emit('createProduct', product);
+
+      // Limpiar el formulario
+      createProductForm.reset();
+    });
+  </script>
+  
+</body>
+</html>
